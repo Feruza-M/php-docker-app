@@ -4,13 +4,13 @@ pipeline {
     environment {
         DOCKER_HUB_USER = credentials('dockerhub-user')
         DOCKER_HUB_PASS = credentials('dockerhub-pass')
-        IMAGE_NAME = "yourdockerhubusername/php-docker-app"
+        IMAGE_NAME = "anestesia01/filiz-php"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your/repo.git'
+                git branch: 'main', url: 'https://github.com/Feruza-M/php-docker-app.git'
             }
         }
 
@@ -22,16 +22,17 @@ pipeline {
 
         stage('Login to Docker Hub') {
             steps {
-                sh "echo '$DOCKER_HUB_PASS' | docker login -u '$DOCKER_HUB_USER' --password-stdin"
+                sh "docker login -u '$DOCKER_HUB_USER' -p '$DOCKER_HUB_PASS'"
             }
         }
 
         stage('Push Docker Image') {
             steps {
                 sh """
+                docker build -t $IMAGE_NAME:${BUILD_NUMBER} .
                 docker push $IMAGE_NAME:${BUILD_NUMBER}
-                docker tag $IMAGE_NAME:${BUILD_NUMBER} $IMAGE_NAME:latest
-                docker push $IMAGE_NAME:latest
+                //docker tag $IMAGE_NAME:${BUILD_NUMBER} $IMAGE_NAME:latest
+                //docker push $IMAGE_NAME:latest
                 """
             }
         }
@@ -41,15 +42,10 @@ pipeline {
                 sh """
                 docker stop php-docker-app || true
                 docker rm php-docker-app || true
-                docker run -d --name php-docker-app -p 8080:80 $IMAGE_NAME:latest
+                docker run -d --name php-docker-app -p 8080:80 $IMAGE_NAME:${BUILD_NUMBER}
                 """
             }
         }
     }
 
-    post {
-        always {
-            sh 'docker logout'
-        }
-    }
 }
