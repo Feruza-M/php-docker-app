@@ -40,7 +40,7 @@ pipeline {
                 sh """
                 docker stop php-docker-app || true
                 docker rm php-docker-app || true
-                docker run -d --name php-docker-app -p 8080:80 $IMAGE_NAME:${BUILD_NUMBER}
+                docker run -d --name php-docker-app -p 8082:80 $IMAGE_NAME:${BUILD_NUMBER}
                 """
             }
         }
